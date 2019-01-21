@@ -14,4 +14,5 @@ alabaster_jupyterhub = "*"
 sphinxcontrib-autoprogram = "*"
 
 [packages]
-repo2docker = {path=".", editable=true}
+repo2docker = {path = ".",editable = true}
+jupyter-repo2docker = {editable = true,path = "."}
