@@ -421,21 +421,34 @@ class Repo2Docker(Application):
         # info every 1.5s
         layers = {}
         last_emit_time = time.time()
-        for line in client.push(self.output_image_spec, stream=True):
-            progress = json.loads(line.decode('utf-8'))
-            if 'error' in progress:
-                self.log.error(progress['error'], extra=dict(phase='failed'))
-                raise docker.errors.ImageLoadError(progress['error'])
-            if 'id' not in progress:
-                continue
-            if 'progressDetail' in progress and progress['progressDetail']:
-                layers[progress['id']] = progress['progressDetail']
-            else:
-                layers[progress['id']] = progress['status']
-            if time.time() - last_emit_time > 1.5:
-                self.log.info('Pushing image\n',
-                              extra=dict(progress=layers, phase='pushing'))
-                last_emit_time = time.time()
+        for lines in client.push(self.output_image_spec, stream=True):
+            #print('\n' + lines.decode('utf-8'))
+            
+            lineS = lines.decode('utf-8').splitlines()
+            #print(lineS)
+
+            for line in lineS:
+                progress = json.loads(line)
+
+
+                if 'error' in progress:
+                    self.log.error(progress['error'], extra=dict(phase='failed'))
+                    raise docker.errors.ImageLoadError(progress['error'])
+                if 'id' not in progress:
+                    continue
+                if 'progressDetail' in progress and progress['progressDetail']:
+                    layers[progress['id']] = progress['progressDetail']
+                    progressbar = progress['progress']
+                    
+                    sys.stdout.write(progressbar + '\r')
+                    sys.stdout.flush()
+                else:
+                    layers[progress['id']] = progress['status']
+                if time.time() - last_emit_time > 1.5:
+                    self.log.info('',
+                                extra=dict(progress=layers, phase='pushing'))
+                    last_emit_time = time.time()
+
         self.log.info('Successfully pushed {}'.format(self.output_image_spec),
                       extra=dict(phase='pushing'))
 
