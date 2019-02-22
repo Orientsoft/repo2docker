@@ -19,7 +19,7 @@ setup(
         'jinja2',
         'ruamel.yaml>=0.15',
     ],
-    python_requires='>=3.4',
+    python_requires='>=3.7',
     author='Project Jupyter Contributors',
     author_email='jupyter@googlegroups.com',
     url='https://repo2docker.readthedocs.io/en/latest/',
